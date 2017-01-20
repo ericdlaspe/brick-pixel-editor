@@ -244,7 +244,7 @@ void mouseDragged() {
     var pixHit = boardHit(mouseX, mouseY);
 };
 
-void mouseClicked() {
+void mousePressed() {
     // Only check for board hit on drag
     var pixHit = boardHit(mouseX, mouseY);
 };
