@@ -37,13 +37,12 @@ var cPurple = color(144, 0, 196);
 var cRed = color(255, 0, 0);
 var cWhite = color(255, 255, 255);
 var cErase = color(50, 50, 50);
-var cClear = color(50, 50, 51);
 var cTransparent = color(255, 0, 0, 0);
 
 var paletteColors = [
     cWhite, cBlack, cGray, cNavy, cBlue,
     cYellow, cPeach, cOrange, cRed, cPurple,
-    cGreen, cBrown, cPink, cErase, cClear
+    cGreen, cBrown, cPink, cErase
 ];
 
 var paletteOffsetX = 79;
@@ -92,7 +91,7 @@ var paletteDraw = function() {
              palettePSize, palettePSize);
 
         // Print counts in contrasting color
-        if (currentColor <= cClear) {
+        if (currentColor <= cErase) {
             fill(255, 255, 255);
         } else {
             fill(40, 40, 40);
@@ -100,8 +99,6 @@ var paletteDraw = function() {
 
         if (currentColor === cErase) {
             textStr = 'Eraser';
-        } else if (currentColor === cClear) {
-            textStr = 'Clear';
         } else {
             textStr = pCounts[i];
         }
@@ -148,11 +145,6 @@ var paletteHit = function(mX, mY) {
             mY >= lowerY && mY < lowerY + palettePSize) {
 
             hitColor = paletteColors[i];
-            if (hitColor === cClear) {
-                boardInit();
-
-                return true;
-            }
             drawColor = hitColor;
             paletteSelected = i;
             paletteDraw();
