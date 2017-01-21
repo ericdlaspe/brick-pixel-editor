@@ -45,10 +45,10 @@ var paletteColors = [
     cGreen, cBrown, cPink, cErase
 ];
 
-var paletteOffsetX = 79;
-var paletteOffsetY = 300;
+var paletteOffsetX = 125;
+var paletteOffsetY = 320;
 var paletteNCols = 5;
-var palettePSize = 89;
+var palettePSize = 70;
 var paletteLen = paletteColors.length;
 var paletteSelected = 0;
 
@@ -64,7 +64,7 @@ var offset = 12;
 var pA = [nPixels];
 var pCounts = [paletteLen];
 
-textSize(18);
+
 var f = createFont("monospace");
 textFont(f);
 
@@ -79,16 +79,45 @@ var paletteGetLowerBoundY = function(i) {
 
 var paletteDraw = function() {
     var textStr;
+    var currentColor;
 
-    strokeWeight(3);
-    stroke(cBlack);
+    strokeWeight(2);
+    stroke(cWhite);
+    fill(cWhite);
+
+    rect(paletteGetLowerBoundX(0) - 1,
+         paletteGetLowerBoundY(0) - 1,
+         palettePSize * paletteNCols + 2,
+         palettePSize * 3 + 2);
 
     for (var i = 0; i < paletteLen; i++) {
-        var currentColor = paletteColors[i];
+        currentColor = paletteColors[i];
+        strokeWeight(2);
+        stroke(cWhite);
         fill(currentColor);
         rect(paletteGetLowerBoundX(i),
              paletteGetLowerBoundY(i),
              palettePSize, palettePSize);
+
+        if (currentColor === cErase) {
+            textStr = 'Eraser';
+        } else {
+            textStr = pCounts[i];
+
+            // Draw the nib
+            if (currentColor === cNavy)
+                stroke(cBlack);
+            else
+                stroke(boardStColor);
+
+            fill(currentColor);
+            ellipse(paletteGetLowerBoundX(i) + palettePSize * 0.5 + 2,
+                    paletteGetLowerBoundY(i) + palettePSize * 0.5 + 2,
+                    palettePSize * 0.6, palettePSize * 0.6);
+            ellipse(paletteGetLowerBoundX(i) + palettePSize * 0.5,
+                    paletteGetLowerBoundY(i) + palettePSize * 0.5,
+                    palettePSize * 0.6, palettePSize * 0.6  );
+        }
 
         // Print counts in contrasting color
         if (currentColor <= cErase) {
@@ -96,21 +125,15 @@ var paletteDraw = function() {
         } else {
             fill(40, 40, 40);
         }
-
-        if (currentColor === cErase) {
-            textStr = 'Eraser';
-        } else {
-            textStr = pCounts[i];
-        }
-
+        textSize(14);
         text(textStr,
-             paletteGetLowerBoundX(i) + palettePSize * 0.1,
-             paletteGetLowerBoundY(i) + palettePSize * 0.3);
+             paletteGetLowerBoundX(i) + palettePSize * 0.05,
+             paletteGetLowerBoundY(i) + palettePSize * 0.2);
     }
 
     // Stroke selected color in white
-    strokeWeight(3);
-    stroke(cWhite);
+    strokeWeight(4);
+    stroke(cBlack);
     fill(cTransparent);
 
     rect(paletteGetLowerBoundX(paletteSelected),
@@ -119,12 +142,13 @@ var paletteDraw = function() {
 };
 
 var updatePixelCounts = function() {
-    for (var c = 0; c < paletteLen; c++) {
+    var c, i;
+    for (c = 0; c < paletteLen; c++) {
         pCounts[c] = 0;
     }
 
-    for (var i = 0; i < nPixels; i++) {
-        for (var c = 0; c < paletteLen; c++) {
+    for (i = 0; i < nPixels; i++) {
+        for (c = 0; c < paletteLen; c++) {
             if (pA[i] === paletteColors[c]) {
                 ++pCounts[c];
             }
@@ -136,10 +160,12 @@ var updatePixelCounts = function() {
 
 var paletteHit = function(mX, mY) {
     var hitColor;
+    var i;
+    var lowerX, lowerY;
 
     for (var i = 0; i < paletteLen; i++) {
-        var lowerX = paletteGetLowerBoundX(i);
-        var lowerY = paletteGetLowerBoundY(i);
+        lowerX = paletteGetLowerBoundX(i);
+        lowerY = paletteGetLowerBoundY(i);
 
         if (mX >= lowerX && mX < lowerX + palettePSize &&
             mY >= lowerY && mY < lowerY + palettePSize) {
@@ -155,8 +181,63 @@ var paletteHit = function(mX, mY) {
     return false;
 };
 
+// Based on the linear gradient here:
+// http://processingjs.org/learning/basic/lineargradient/
+var setGradient = function(w, h) {
+    var i, j;
+    var fromColor = cGray;
+    var toColor = cWhite;
+    var c;
+
+    // calculate differences between color components
+    var deltaR = red(toColor) - red(fromColor);
+    var deltaG = green(toColor) - green(fromColor);
+    var deltaB = blue(toColor) - blue(fromColor);
+
+
+    /*nested for loops set pixels
+     in a basic table structure */
+    // column
+    for (i = 0; i <= w; i++) {
+        // row
+        for (j = 0; j <= h; j++) {
+            c = color((red(fromColor)+j*(deltaR/h)),
+                      (green(fromColor)+j*(deltaG/h)),
+                      (blue(fromColor)+j*(deltaB/h)));
+            set(i, j, c);
+        }
+    }
+};
+
 var boardGetLowerBound = function(i) {
     return floor(i * pSize + offset);
+};
+
+var numberColumns = function() {
+    var i;
+
+    fill(cGray);
+    textSize(10);
+
+    text(1, pSize, 11);
+    for (i = 0; i <= nCols; i += 4) {
+        if (i != 0)
+            text(i, i * pSize, 11);
+    }
+};
+
+var numberRows = function(i) {
+    var i;
+
+    fill(cGray);
+    textSize(10);
+
+    for (i = 1; i <= nRows; i += 3) {
+        if (i < 10)
+            text(i, 7, i * pSize + 8);
+        else
+            text(i, 1, i * pSize + 8);
+    }
 };
 
 var boardInit = function() {
@@ -172,25 +253,39 @@ var boardInit = function() {
     boardDraw();
 };
 
+var boardBgDraw = function() {
+    fill(boardBgColor);
+    rect(0, 0, 600, pSize * (nRows + 2), 12);
+};
+
 var boardDraw = function() {
+    var i, j;
+    var pixelColor = pA
+    var cornerX, cornerY;
+    var circleOffset = pSize/2;
+    var circleDiam = 8;
+    var LabelNum = 1;
+
     strokeWeight(1);
     noStroke();
 
-    for (var i = 0; i < nCols; i++) {
-        for (var j = 0; j < nRows; j++) {
+    boardBgDraw();
+    numberColumns();
+    numberRows();
+
+    for (i = 0; i < nCols; i++) {
+        for (j = 0; j < nRows; j++) {
 
             // Get pixel parameters
-            var pixelColor = pA[nCols * j + i];
-            var cornerX = boardGetLowerBound(i);
-            var cornerY = boardGetLowerBound(j);
-            var circleOffset = pSize/2;
-            var circleDiam = 9;
+            pixelColor = pA[nCols * j + i];
+            cornerX = boardGetLowerBound(i);
+            cornerY = boardGetLowerBound(j);
 
-            if (pixelColor !== boardBgColor) {
-                stroke(boardStColor);
-            } else {
+            if (pixelColor === boardBgColor)
                 noStroke();
-            }
+            else
+                stroke(boardStColor);
+
             // Draw pixel
             fill(pixelColor);
             rect(cornerX,
@@ -198,7 +293,13 @@ var boardDraw = function() {
                  pSize, pSize);
 
             // Draw the nib
-            stroke(boardStColor);
+            if (pixelColor === boardBgColor)
+                stroke(boardStColor);
+            else if (pixelColor === cBlack)
+                stroke(color(70, 70, 70));
+            else
+                stroke(cBlack);
+
             ellipse(cornerX + circleOffset + 1,
                     cornerY + circleOffset + 1,
                     circleDiam, circleDiam);
@@ -207,18 +308,23 @@ var boardDraw = function() {
                     circleDiam, circleDiam);
         }
     }
+
 };
 
 var boardHit = function(mX, mY) {
-    for (var i = 0; i < nCols; i++) {
-        for (var j = 0; j < nRows; j++) {
-            var lowerX = boardGetLowerBound(i);
-            var lowerY = boardGetLowerBound(j);
+    var i, j;
+    var lowerX, lowerY;
+    var pixelColor;
+
+    for (i = 0; i < nCols; i++) {
+        for (j = 0; j < nRows; j++) {
+            lowerX = boardGetLowerBound(i);
+            lowerY = boardGetLowerBound(j);
 
             if (mX >= lowerX && mX < lowerX + pSize &&
                 mY >= lowerY && mY < lowerY + pSize) {
 
-                var pixelColor = drawColor;
+                pixelColor = drawColor;
                 if (drawColor === cErase) {
                     pixelColor = boardBgColor;
                 }
@@ -253,7 +359,8 @@ void mouseReleased() {
 
 void setup() {
     size(600, 600);
-    background(cBlack);
+    background(cWhite);
+    setGradient(600, 500);
 
     boardInit();
     paletteDraw();
