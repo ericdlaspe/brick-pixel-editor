@@ -99,25 +99,10 @@ var paletteDraw = function() {
              paletteGetLowerBoundY(i),
              palettePSize, palettePSize);
 
-        if (currentColor === cErase) {
+        if (currentColor === cErase)
             textStr = 'Eraser';
-        } else {
+        else
             textStr = pCounts[i];
-
-            // Draw the nib
-            if (currentColor === cNavy)
-                stroke(cBlack);
-            else
-                stroke(boardStColor);
-
-            fill(currentColor);
-            ellipse(paletteGetLowerBoundX(i) + palettePSize * 0.5 + 2,
-                    paletteGetLowerBoundY(i) + palettePSize * 0.5 + 2,
-                    palettePSize * 0.6, palettePSize * 0.6);
-            ellipse(paletteGetLowerBoundX(i) + palettePSize * 0.5,
-                    paletteGetLowerBoundY(i) + palettePSize * 0.5,
-                    palettePSize * 0.6, palettePSize * 0.6  );
-        }
 
         // Print counts in contrasting color
         if (currentColor <= cErase) {
@@ -232,7 +217,10 @@ var numberRows = function(i) {
     fill(cGray);
     textSize(10);
 
-    for (i = 1; i <= nRows; i += 3) {
+    text(1, 7, pSize + 8);
+    for (i = 0; i <= nRows; i += 4) {
+        if (i === 0)
+            continue;
         if (i < 10)
             text(i, 7, i * pSize + 8);
         else
