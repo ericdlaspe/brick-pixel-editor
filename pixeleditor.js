@@ -290,25 +290,21 @@ var boardDraw = function() {
             cornerX = boardGetLowerBound(i);
             cornerY = boardGetLowerBound(j);
 
-            if (pixelColor === boardBgColor)
-                noStroke();
-            else
-                stroke(boardStColor);
+            fill(boardBgColor);
+            stroke(boardStColor);
 
-            // Draw pixel
-            fill(pixelColor);
-            rect(cornerX,
-                 cornerY,
-                 pSize, pSize);
+            // Draw brick
+            if (pixelColor !== boardBgColor) {
+                if (pixelColor === cBlack) {
+                    stroke(color(70, 70, 70));
+                } else {
+                    stroke(cBlack);
+                }
+                fill(pixelColor);
+                rect(cornerX, cornerY, pSize, pSize);
+            }
 
-            // Draw the nib
-            if (pixelColor === boardBgColor)
-                stroke(boardStColor);
-            else if (pixelColor === cBlack)
-                stroke(color(70, 70, 70));
-            else
-                stroke(cBlack);
-
+            // Draw nib
             ellipse(cornerX + circleOffset + 1,
                     cornerY + circleOffset + 1,
                     circleDiam, circleDiam);
