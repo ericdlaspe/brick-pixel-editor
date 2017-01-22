@@ -24,7 +24,7 @@
 // https://www.khanacademy.org/computer-programming/brick-brick-gear-pixel-creator/5760802139734016
 
 var canvasDimX = 600;
-var canvasDimY = 600;
+var canvasDimY = canvasDimX;
 
 var cOrange = color(255, 132, 0);
 var cYellow = color(238, 255, 0);
@@ -40,7 +40,6 @@ var cPurple = color(144, 0, 196);
 var cRed = color(255, 0, 0);
 var cWhite = color(255, 255, 255);
 var cErase = color(50, 50, 50);
-var cTransparent = color(255, 0, 0, 0);
 
 var paletteColors = [
     cWhite, cBlack, cGray, cNavy, cBlue,
@@ -48,85 +47,97 @@ var paletteColors = [
     cGreen, cBrown, cPink, cErase
 ];
 
-var paletteOffsetX = 125;
-var paletteOffsetY = 320;
-var paletteNCols = 5;
-var palettePSize = 70;
-var paletteLen = paletteColors.length;
-var paletteSelected = 0;
-
-var boardBgColor = cBlack + 1;
-var boardStColor = color(40, 40, 40);
-
 var drawColor = paletteColors[0];
 var nCols = 36;
 var nRows = 16;
 var nPixels = nCols * nRows;
-var pSize = floor(600 / nCols);
+var pSize = floor(canvasDimX / nCols);
 var offset = 12;
+
+var boardOffsetX = 0;
+var boardOffsetY = 0;
+var boardDimX = canvasDimX;
+var boardDimY = pSize * (nRows + 2) - 8;
+var boardCornerRad = 16;
+
+var paletteOffsetX = 20;
+var paletteOffsetY = boardOffsetY + boardDimY + 20;
+var paletteNCols = 14;
+var paletteSlotSize = 40;
+var paletteLen = paletteColors.length;
+var paletteSelected = 0;
+
+// Set background to slightly different than black so empty nibs aren't
+// counted as black bricks
+var boardBgColor = cBlack + 1;
+var boardStColor = color(40, 40, 40);
+
+// Arrays of pixels, palette slots, etc.
 var pA = [nPixels];
 var pCounts = [paletteLen];
 
-
-var f = createFont("monospace");
+var f = createFont("sans-serif");
 textFont(f);
 
 
-var paletteGetLowerBoundX = function(i) {
-    return palettePSize * (i % paletteNCols) + paletteOffsetX;
+var paletteSlotGetOffsetX = function(i) {
+    return paletteSlotSize * (i % paletteNCols) + paletteOffsetX;
 };
 
-var paletteGetLowerBoundY = function(i) {
-    return palettePSize * floor(i / paletteNCols) + paletteOffsetY;
+var paletteSlotGetOffsetY = function(i) {
+    return paletteSlotSize * floor(i / paletteNCols) + paletteOffsetY;
 };
 
 var paletteDraw = function() {
+    var i
     var textStr;
     var currentColor;
+    var slotTextOffsetX = paletteSlotSize * 0.5;
+    var slotTextOffsetY = paletteSlotSize * 0.6;
 
     strokeWeight(2);
     stroke(cWhite);
     fill(cWhite);
+    textSize(14);
+    textAlign(CENTER);
 
-    rect(paletteGetLowerBoundX(0) - 1,
-         paletteGetLowerBoundY(0) - 1,
-         palettePSize * paletteNCols + 2,
-         palettePSize * 3 + 2);
+    rect(paletteSlotGetOffsetX(0) - 1,
+         paletteSlotGetOffsetY(0) - 1,
+         paletteSlotSize * paletteNCols + 2,
+         paletteSlotSize + 2);
 
-    for (var i = 0; i < paletteLen; i++) {
+    for (i = 0; i < paletteLen; i++) {
         currentColor = paletteColors[i];
-        strokeWeight(2);
-        stroke(cWhite);
         fill(currentColor);
-        rect(paletteGetLowerBoundX(i),
-             paletteGetLowerBoundY(i),
-             palettePSize, palettePSize);
-
-        if (currentColor === cErase)
-            textStr = 'Eraser';
-        else
-            textStr = pCounts[i];
+        rect(paletteSlotGetOffsetX(i),
+             paletteSlotGetOffsetY(i),
+             paletteSlotSize, paletteSlotSize);
 
         // Print counts in contrasting color
-        if (currentColor <= cErase) {
-            fill(255, 255, 255);
+        if ([cBlack, cNavy, cBlue, cPurple, cErase].includes(currentColor)) {
+            fill(cWhite);
         } else {
-            fill(40, 40, 40);
+            fill(cBlack);
         }
-        textSize(14);
+
+        textStr = '';
+        if (currentColor === cErase)
+            textStr = 'X';
+        else if (pCounts[i] !== 0)
+            textStr = pCounts[i];
+
         text(textStr,
-             paletteGetLowerBoundX(i) + palettePSize * 0.05,
-             paletteGetLowerBoundY(i) + palettePSize * 0.2);
+             paletteSlotGetOffsetX(i) + slotTextOffsetX,
+             paletteSlotGetOffsetY(i) + slotTextOffsetY);
     }
 
     // Stroke selected color in white
     strokeWeight(4);
     stroke(cBlack);
-    fill(cTransparent);
-
-    rect(paletteGetLowerBoundX(paletteSelected),
-         paletteGetLowerBoundY(paletteSelected),
-         palettePSize, palettePSize);
+    noFill();
+    rect(paletteSlotGetOffsetX(paletteSelected),
+         paletteSlotGetOffsetY(paletteSelected),
+         paletteSlotSize, paletteSlotSize);
 };
 
 var updatePixelCounts = function() {
@@ -151,12 +162,12 @@ var paletteHit = function(mX, mY) {
     var i;
     var lowerX, lowerY;
 
-    for (var i = 0; i < paletteLen; i++) {
-        lowerX = paletteGetLowerBoundX(i);
-        lowerY = paletteGetLowerBoundY(i);
+    for (i = 0; i < paletteLen; i++) {
+        lowerX = paletteSlotGetOffsetX(i);
+        lowerY = paletteSlotGetOffsetY(i);
 
-        if (mX >= lowerX && mX < lowerX + palettePSize &&
-            mY >= lowerY && mY < lowerY + palettePSize) {
+        if (mX >= lowerX && mX < lowerX + paletteSlotSize &&
+            mY >= lowerY && mY < lowerY + paletteSlotSize) {
 
             hitColor = paletteColors[i];
             drawColor = hitColor;
@@ -196,51 +207,55 @@ var setGradient = function(x, y, w, h) {
     }
 };
 
-var boardGetLowerBound = function(i) {
+var pixelGetOffset = function(i) {
     return floor(i * pSize + offset);
 };
 
 var numberColumns = function() {
     var i;
+    var topOffsetY = 11;
+    var bottomOffsetY = (nRows + 1) * pSize + 4;
+    var offsetX = 4;
 
     fill(cGray);
     textSize(10);
+    textAlign(CENTER);
 
     // Top edge of board
-    text('1', pSize, 11);
+    text('1', pSize + offsetX, topOffsetY);
     for (i = 0; i <= nCols; i += 4) {
         if (i === 0)
             continue;
-        text(i, i * pSize, 11);
+        text(i, i * pSize + offsetX, topOffsetY);
     }
 
     // Bottom edge of board
-    text('1', pSize, (nRows + 1) * pSize);
+    text('1', pSize + offsetX, bottomOffsetY);
     for (i = 0; i <= nCols; i += 4) {
         if (i === 0)
             continue;
-        text(i, i * pSize, (nRows + 1) * pSize + 4);
+        text(i, i * pSize + offsetX, bottomOffsetY);
     }
 };
 
 var numberRows = function(i) {
     var i;
+    var offsetX = 14;
 
     fill(cGray);
     textSize(10);
 
     // Left side of board
-    text('1', 7, pSize + 8);
+    textAlign(RIGHT);
+    text('1', offsetX, pSize + 8);
     for (i = 0; i <= nRows; i += 4) {
         if (i === 0)
             continue;
-        if (i < 10)
-            text(i, 7, i * pSize + 8);
-        else
-            text(i, 1, i * pSize + 8);
+        text(i, offsetX, i * pSize + 8);
     }
 
     // Right side of board
+    textAlign(LEFT);
     text('1', canvasDimX - 13, pSize + 8);
     for (i = 0; i <= nRows; i += 4) {
         if (i === 0)
@@ -264,16 +279,15 @@ var boardInit = function() {
 
 var boardBgDraw = function() {
     fill(boardBgColor);
-    rect(0, 0, 600, pSize * (nRows + 2) - 8, 16);
+    rect(boardOffsetX, boardOffsetY, boardDimX, boardDimY, boardCornerRad);
 };
 
 var boardDraw = function() {
     var i, j;
     var pixelColor = pA
     var cornerX, cornerY;
-    var circleOffset = pSize/2;
-    var circleDiam = 8;
-    var LabelNum = 1;
+    var nibOffset = pSize / 2;
+    var nibDiam = 8;
 
     strokeWeight(1);
     noStroke();
@@ -287,8 +301,8 @@ var boardDraw = function() {
 
             // Get pixel parameters
             pixelColor = pA[nCols * j + i];
-            cornerX = boardGetLowerBound(i);
-            cornerY = boardGetLowerBound(j);
+            cornerX = pixelGetOffset(i);
+            cornerY = pixelGetOffset(j);
 
             fill(boardBgColor);
             stroke(boardStColor);
@@ -305,12 +319,12 @@ var boardDraw = function() {
             }
 
             // Draw nib
-            ellipse(cornerX + circleOffset + 1,
-                    cornerY + circleOffset + 1,
-                    circleDiam, circleDiam);
-            ellipse(cornerX + circleOffset,
-                    cornerY + circleOffset,
-                    circleDiam, circleDiam);
+            ellipse(cornerX + nibOffset + 1,
+                    cornerY + nibOffset + 1,
+                    nibDiam, nibDiam);
+            ellipse(cornerX + nibOffset,
+                    cornerY + nibOffset,
+                    nibDiam, nibDiam);
         }
     }
 
@@ -323,8 +337,8 @@ var boardHit = function(mX, mY) {
 
     for (i = 0; i < nCols; i++) {
         for (j = 0; j < nRows; j++) {
-            lowerX = boardGetLowerBound(i);
-            lowerY = boardGetLowerBound(j);
+            lowerX = pixelGetOffset(i);
+            lowerY = pixelGetOffset(j);
 
             if (mX >= lowerX && mX < lowerX + pSize &&
                 mY >= lowerY && mY < lowerY + pSize) {
