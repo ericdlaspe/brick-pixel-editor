@@ -206,10 +206,20 @@ var numberColumns = function() {
     fill(cGray);
     textSize(10);
 
-    text(1, pSize, 11);
+    // Top edge of board
+    text('1', pSize, 11);
     for (i = 0; i <= nCols; i += 4) {
-        if (i != 0)
-            text(i, i * pSize, 11);
+        if (i === 0)
+            continue;
+        text(i, i * pSize, 11);
+    }
+
+    // Bottom edge of board
+    text('1', pSize, (nRows + 1) * pSize);
+    for (i = 0; i <= nCols; i += 4) {
+        if (i === 0)
+            continue;
+        text(i, i * pSize, (nRows + 1) * pSize + 4);
     }
 };
 
@@ -219,7 +229,8 @@ var numberRows = function(i) {
     fill(cGray);
     textSize(10);
 
-    text(1, 7, pSize + 8);
+    // Left side of board
+    text('1', 7, pSize + 8);
     for (i = 0; i <= nRows; i += 4) {
         if (i === 0)
             continue;
@@ -227,6 +238,14 @@ var numberRows = function(i) {
             text(i, 7, i * pSize + 8);
         else
             text(i, 1, i * pSize + 8);
+    }
+
+    // Right side of board
+    text('1', canvasDimX - 13, pSize + 8);
+    for (i = 0; i <= nRows; i += 4) {
+        if (i === 0)
+            continue;
+        text(i, canvasDimX - 13, i * pSize + 8);
     }
 };
 
@@ -245,7 +264,7 @@ var boardInit = function() {
 
 var boardBgDraw = function() {
     fill(boardBgColor);
-    rect(0, 0, 600, pSize * (nRows + 2), 12);
+    rect(0, 0, 600, pSize * (nRows + 2) - 8, 16);
 };
 
 var boardDraw = function() {
