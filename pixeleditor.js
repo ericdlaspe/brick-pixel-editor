@@ -23,6 +23,9 @@
 // Ported to Processing.js from my Khan Academy project, here:
 // https://www.khanacademy.org/computer-programming/brick-brick-gear-pixel-creator/5760802139734016
 
+var canvasDimX = 600;
+var canvasDimY = 600;
+
 var cOrange = color(255, 132, 0);
 var cYellow = color(238, 255, 0);
 var cBrown = color(161, 106, 47);
@@ -168,24 +171,23 @@ var paletteHit = function(mX, mY) {
 
 // Based on the linear gradient here:
 // http://processingjs.org/learning/basic/lineargradient/
-var setGradient = function(w, h) {
-    var i, j;
+var setGradient = function(x, y, w, h) {
+    var i;
+    var j;
     var fromColor = cGray;
     var toColor = cWhite;
     var c;
+    var endCol = x + w;
+    var endRow = y + h;
 
     // calculate differences between color components
     var deltaR = red(toColor) - red(fromColor);
     var deltaG = green(toColor) - green(fromColor);
     var deltaB = blue(toColor) - blue(fromColor);
 
-
-    /*nested for loops set pixels
-     in a basic table structure */
-    // column
-    for (i = 0; i <= w; i++) {
-        // row
-        for (j = 0; j <= h; j++) {
+    // Set pixels
+    for (i = x; i <= endCol; i++) {
+        for (j = y; j <= endRow; j++) {
             c = color((red(fromColor)+j*(deltaR/h)),
                       (green(fromColor)+j*(deltaG/h)),
                       (blue(fromColor)+j*(deltaB/h)));
@@ -346,9 +348,9 @@ void mouseReleased() {
 };
 
 void setup() {
-    size(600, 600);
+    size(canvasDimX, canvasDimY);
     background(cWhite);
-    setGradient(600, 500);
+    setGradient(0, canvasDimY * 0.4, canvasDimX, canvasDimY * 0.9);
 
     boardInit();
     paletteDraw();
