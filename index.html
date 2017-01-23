@@ -18,13 +18,60 @@
 		   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 		   font-weight: 300;
 		}
+		.content {
+		    background-color: #ffffff;
+		    width: 100%;
+		    box-sizing: border-box;
+		    -moz-box-sizing: border-box;
+		    padding: 7px 10px 4px 10px;
+		    position: relative;
+		    clear: both
+		}
+		.content {
+		    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+		    color: #6a737c;
+		    font-weight: bold;
+		    text-transform: uppercase;
+		    font-size: 11px;
+		    line-height: .8;
+		    display: inline-block
+		}
+		.content {
+		    padding: 0 0 10px 10px;
+		    background: #fafafb
+		}
+		#content {
+		    min-height: 600px;
+		    margin: 0 auto;
+		    -webkit-box-sizing: content-box;
+		    -moz-box-sizing: content-box;
+		    box-sizing: content-box;
+		    width: 600px;
+		    padding: 15px;
+		    background-color: #FFF
+		}
 	</style>
 </head>
 
-<body style="margin: 0">
-	<center>
+<body>
+	<div id="content">
 	<h1>Brick Pixel Editor</h1>
 	<canvas width="600" height="600" data-processing-sources="pixeleditor.js"></canvas>
-	</center>
+	<div id="readme">
+		<p>
+		This painting tool is designed to be useful for creating pixel brick patterns for Brick Brick Gear Pixel front plates. If you don't know what those are, check out their rad hats at <a href="https://www.brickbrickgear.com">https://www.brickbrickgear.com</a>
+		<p>
+		The template here has the exact same dimensions--in terms of brick units--as the Brick Brick Pixel plates (36 x 16). Due to the miniscule size of the pixel bricks, creating patterns directly on the plates with actual bricks can be quite tedious. I created this because I wanted to rapidly prototype and tweak designs before getting down to the nitty gritty of placing pixel bricks.
+		<p>
+		The color palette contains only the colors of pixel bricks sold by Brick Brick Gear, so you know you can create IRL whatever designs you make here. The counter on each color keeps track of how many bricks of that color you've laid down. That way, you'll always know if you have enough to make the design or if it's time to order more pixels bricks. I am working on making this thing mobile friendly, so you can create with your favorite devices on the go. For now, Brick Pixel Editor is best experienced on a computer. Click or click-and-drag to lay down some bricks!
+		<p>
+		If you find this tool useful, I would love to hear from you and get any feedback you'd be willing to share.
+		<p>
+		The code for this editor is open-sourced under the MIT license. Check it out here:<br>
+		<a href="https://github.com/ericdlaspe/brick-pixel-editor">https://github.com/ericdlaspe/brick-pixel-editor</a>
+		<p>
+		All product and company names are trademarks™ or registered® trademarks of their respective holders. Use of them does not imply any affiliation with or endorsement by them.
+	</div>
+	</div>
 </body>
 </html>
