@@ -166,20 +166,11 @@ var miniPlatesDraw = function() {
         cornerX = miniPlateGetOffsetX(i);
         cornerY = miniPlateGetOffsetY(i);
 
-        // fill(cGray);
-        // rect(miniPlateGetOffsetX(i) + 1,
-        //      miniPlateGetOffsetY(i) + 1,
-        //      miniPlateDimX, miniPlateDimY, 8);
-
         currentColor = miniPlateColors[i];
         fill(currentColor);
 
-        // if (currentColor === cWhite) {
-            stroke(cBlack);
-            strokeWeight(2);
-        // } else {
-        //     noStroke();
-        // }
+        stroke(cDarkGray);
+        strokeWeight(2);
 
         rect(miniPlateGetOffsetX(i),
              miniPlateGetOffsetY(i),
@@ -420,6 +411,8 @@ var boardInit = function() {
 };
 
 var boardBgDraw = function() {
+    fill(cWhite);
+    rect(boardOffsetX, boardOffsetY, boardDimX, boardDimY);
     fill(boardBgColor);
     rect(boardOffsetX, boardOffsetY, boardDimX, boardDimY, boardCornerRad);
 };
