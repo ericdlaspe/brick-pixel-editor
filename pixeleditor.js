@@ -24,7 +24,7 @@
 // https://www.khanacademy.org/computer-programming/brick-brick-gear-pixel-creator/5760802139734016
 
 var canvasDimX = 600;
-var canvasDimY = canvasDimX;
+var canvasDimY = 400;
 
 var cOrange = color(255, 132, 0);
 var cYellow = color(238, 255, 0);
@@ -40,12 +40,25 @@ var cPurple = color(144, 0, 196);
 var cRed = color(255, 0, 0);
 var cWhite = color(255, 255, 255);
 var cErase = color(50, 50, 50);
+var cDarkGray = color(100, 100, 100);
 
 var paletteColors = [
-    cWhite, cBlack, cGray, cNavy, cBlue,
-    cYellow, cPeach, cOrange, cRed, cPurple,
-    cGreen, cBrown, cPink, cErase
+    cWhite,
+    cBlack,
+    cGray,
+    cBrown,
+    cOrange,
+    cPeach,
+    cYellow,
+    cGreen,
+    cBlue,
+    cNavy,
+    cPurple,
+    cPink,
+    cRed,
+    cErase,
 ];
+
 
 var drawColor = paletteColors[0];
 var nCols = 36;
@@ -79,7 +92,6 @@ var pCounts = [paletteLen];
 var f = createFont("sans-serif");
 textFont(f);
 
-
 var paletteSlotGetOffsetX = function(i) {
     return paletteSlotSize * (i % paletteNCols) + paletteOffsetX;
 };
@@ -94,17 +106,23 @@ var paletteDraw = function() {
     var currentColor;
     var slotTextOffsetX = paletteSlotSize * 0.5;
     var slotTextOffsetY = paletteSlotSize * 0.6;
+    var darkColors = [cBlack, cNavy, cBlue, cPurple, cErase, cRed];
+    var selColor = paletteColors[paletteSelected];
+    var selOffsetX = paletteSlotGetOffsetX(paletteSelected);
+    var selOffsetY = paletteSlotGetOffsetY(paletteSelected);
 
-    strokeWeight(2);
-    stroke(cWhite);
-    fill(cWhite);
+    noStroke();
+    fill(cBlack);
     textSize(14);
     textAlign(CENTER);
 
-    rect(paletteSlotGetOffsetX(0) - 1,
-         paletteSlotGetOffsetY(0) - 1,
-         paletteSlotSize * paletteNCols + 2,
-         paletteSlotSize + 2);
+    // Palette background
+    rect(paletteSlotGetOffsetX(0) - 2,
+         paletteSlotGetOffsetY(0) - 2,
+         paletteSlotSize * paletteNCols + 4,
+         paletteSlotSize + 4);
+
+    noStroke();
 
     for (i = 0; i < paletteLen; i++) {
         currentColor = paletteColors[i];
@@ -114,11 +132,10 @@ var paletteDraw = function() {
              paletteSlotSize, paletteSlotSize);
 
         // Print counts in contrasting color
-        if ([cBlack, cNavy, cBlue, cPurple, cErase].includes(currentColor)) {
+        if (darkColors.includes(currentColor))
             fill(cWhite);
-        } else {
+        else
             fill(cBlack);
-        }
 
         textStr = '';
         if (currentColor === cErase)
@@ -131,13 +148,18 @@ var paletteDraw = function() {
              paletteSlotGetOffsetY(i) + slotTextOffsetY);
     }
 
-    // Stroke selected color in white
-    strokeWeight(4);
-    stroke(cBlack);
-    noFill();
-    rect(paletteSlotGetOffsetX(paletteSelected),
-         paletteSlotGetOffsetY(paletteSelected),
-         paletteSlotSize, paletteSlotSize);
+    // Identify selected color
+    if (darkColors.includes(selColor))
+        fill(cWhite);
+    else
+        fill(cBlack);
+    noStroke();
+    triangle(selOffsetX,
+             selOffsetY + paletteSlotSize,
+             selOffsetX + paletteSlotSize,
+             selOffsetY + paletteSlotSize,
+             selOffsetX + paletteSlotSize * 0.5,
+             selOffsetY + paletteSlotSize * 0.7);
 };
 
 var updatePixelCounts = function() {
@@ -178,33 +200,6 @@ var paletteHit = function(mX, mY) {
     }
 
     return false;
-};
-
-// Based on the linear gradient here:
-// http://processingjs.org/learning/basic/lineargradient/
-var setGradient = function(x, y, w, h) {
-    var i;
-    var j;
-    var fromColor = cGray;
-    var toColor = cWhite;
-    var c;
-    var endCol = x + w;
-    var endRow = y + h;
-
-    // calculate differences between color components
-    var deltaR = red(toColor) - red(fromColor);
-    var deltaG = green(toColor) - green(fromColor);
-    var deltaB = blue(toColor) - blue(fromColor);
-
-    // Set pixels
-    for (i = x; i <= endCol; i++) {
-        for (j = y; j <= endRow; j++) {
-            c = color((red(fromColor)+j*(deltaR/h)),
-                      (green(fromColor)+j*(deltaG/h)),
-                      (blue(fromColor)+j*(deltaB/h)));
-            set(i, j, c);
-        }
-    }
 };
 
 var pixelGetOffset = function(i) {
@@ -379,7 +374,6 @@ void mouseReleased() {
 void setup() {
     size(canvasDimX, canvasDimY);
     background(cWhite);
-    setGradient(0, canvasDimY * 0.4, canvasDimX, canvasDimY * 0.9);
 
     boardInit();
     paletteDraw();
